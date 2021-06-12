@@ -3,6 +3,8 @@ import shutil
 import subprocess
 import distutils.dir_util
 
+# https://www.mediafire.com/file/mtotnoxadbuljz4/BTWMod4-B0000003.zip/file
+
 def download():
     links = [
         ("minecraft_server.jar", "https://launcher.mojang.com/v1/objects/f9ae3f651319151ce99a0bfad6b34fa16eb6775f/server.jar"),
@@ -20,9 +22,9 @@ def download():
         subprocess.run(["curl", link[1], "--output", link[0] ])
     os.chdir("..")
 
-# setup mcp jars folder
 
-def mcp_jars():
+# setup mcp jars folder
+def vanilla_jars():
     os.mkdir("mcp")
     os.chdir("mcp")
     shutil.copyfile("../files/mcp751.zip", "mcp751.zip")
@@ -48,10 +50,59 @@ def mcp_jars():
     os.chdir("../../../..")
 
 
+# install btw into vanilla jars
+def btw_jars():
+    os.chdir("mcp/jars")
+    os.mkdir("temp")
+    os.chdir("temp")
+    shutil.copyfile("../../../files/BTWMod4-B0000003.zip", "btw.zip")
+    shutil.unpack_archive("btw.zip")
+    
+    os.mkdir("client")
+    os.chdir("client")
+    shutil.copyfile("../../bin/minecraft.jar", "minecraftjar.zip")
+    shutil.unpack_archive("minecraftjar.zip")
+    os.remove("minecraftjar.zip")
+    distutils.dir_util.copy_tree("../MINECRAFT-JAR", ".")
+    os.chdir("..")
+    shutil.make_archive("minecraftjar", "zip", "client")
+    os.rename("minecraftjar.zip", "minecraft.jar")
+    
+    os.mkdir("server")
+    os.chdir("server")
+    shutil.copyfile("../../minecraft_server.jar", "minecraftjar.zip")
+    shutil.unpack_archive("minecraftjar.zip")
+    os.remove("minecraftjar.zip")
+    distutils.dir_util.copy_tree("../MINECRAFT_SERVER-JAR", ".")
+    os.chdir("..")
+    shutil.make_archive("minecraftjar", "zip", "server")
+    os.rename("minecraftjar.zip", "minecraft_server.jar")
+    
+    os.chdir("..")
+    os.remove("minecraft_server.jar")
+    os.remove("bin/minecraft.jar")
+    shutil.copyfile("temp/minecraft.jar", "bin/minecraft.jar")
+    shutil.copyfile("temp/minecraft_server.jar", "minecraft_server.jar")
+    shutil.rmtree("temp")
+    os.chdir("../..")
+    
+
+def setup_new_git_repo():
+    os.chdir("mcp/src")
+    subprocess.run(["git", "init", "."])
+    subprocess.run(["git", "add", "minecraft"])
+    subprocess.run(["git", "add", "minecraft_server"])
+    os.mkdir("resources")
+    subprocess.run(["git", "add", "resources"])
+    subprocess.run(["git", "commit", "-m\"Initial decompile\""])
+    subprocess.run(["git", "branch",  "decompile"])
+
+
 def decompile():
     os.chdir("mcp")
     subprocess.run(["runtime/bin/python/python_mcp", "runtime/decompile.py"])
     os.chdir("..")
+
 
 def clone_ce():
     os.chdir("mcp")
@@ -69,7 +120,9 @@ def recompile():
 
 
 download()
-mcp_jars()
+vanilla_jars()
+btw_jars()
 decompile()
-clone_ce()
-recompile()
+setup_new_git_repo()
+#clone_ce()
+#recompile()
