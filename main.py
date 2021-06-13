@@ -103,8 +103,17 @@ def setup_new_git_repo():
     subprocess.run(["git", "add", "minecraft_server"])
     os.mkdir("resources")
     subprocess.run(["git", "add", "resources"])
-    subprocess.run(["git", "commit", "-m\"Initial decompile\""])
+    subprocess.run(["git", "commit", "-m\"initial decompile\""])
     subprocess.run(["git", "branch",  "decompile"])
+    os.chdir("../..")
+
+
+def patch():
+    os.chdir("mcp/src")
+    subprocess.run(["git", "apply", "../../files/btw_decomp_fixes.patch"])
+    subprocess.run(["git", "add", "."])
+    subprocess.run(["git", "commit", "-m\"fix btw decompile errors\""])
+    os.chdir("../..")
 
 
 def decompile():
@@ -133,5 +142,6 @@ vanilla_jars()
 btw_jars()
 decompile()
 setup_new_git_repo()
+patch()
 #clone_ce()
-#recompile()
+recompile()

@@ -1,0 +1,519 @@
+diff --git a/minecraft/net/minecraft/src/AxisAlignedBB.java b/minecraft/net/minecraft/src/AxisAlignedBB.java
+index 51adbc7..b8f6cf9 100644
+--- a/minecraft/net/minecraft/src/AxisAlignedBB.java
++++ b/minecraft/net/minecraft/src/AxisAlignedBB.java
+@@ -597,9 +597,4 @@ public class AxisAlignedBB extends FCUtilsPrimitiveGeometric
+         var1.setRenderBounds(this);
+         var1.RenderStandardFallingBlock(var2, var3, var4, var5, var6);
+     }
+-
+-    public FCUtilsPrimitiveGeometric MakeTemporaryCopy()
+-    {
+-        return this.MakeTemporaryCopy();
+-    }
+ }
+diff --git a/minecraft/net/minecraft/src/EntityAnimal.java b/minecraft/net/minecraft/src/EntityAnimal.java
+index 9891c03..be934a1 100644
+--- a/minecraft/net/minecraft/src/EntityAnimal.java
++++ b/minecraft/net/minecraft/src/EntityAnimal.java
+@@ -451,9 +451,9 @@ public abstract class EntityAnimal extends EntityAgeable implements IAnimals
+ 
+     public void setRevengeTarget(EntityLiving var1)
+     {
+-        this.breeding = var1;
++        this.entityLivingToAttack = var1;
+ 
+-        if (this.breeding != null)
++        if (this.entityLivingToAttack != null)
+         {
+             this.revengeTimer = 300;
+         }
+@@ -609,9 +609,9 @@ public abstract class EntityAnimal extends EntityAgeable implements IAnimals
+ 
+     public void OnNearbyAnimalAttacked(EntityAnimal var1, EntityLiving var2)
+     {
+-        if (this.breeding == null)
++        if (this.entityLivingToAttack == null)
+         {
+-            this.breeding = var2;
++            this.entityLivingToAttack = var2;
+             this.revengeTimer = 150;
+         }
+         else if (this.revengeTimer < 150)
+@@ -632,9 +632,9 @@ public abstract class EntityAnimal extends EntityAgeable implements IAnimals
+ 
+     protected void OnNearbyPlayerStartles(EntityPlayer var1)
+     {
+-        if (this.breeding == null)
++        if (this.entityLivingToAttack == null)
+         {
+-            this.breeding = var1;
++            this.entityLivingToAttack = var1;
+             this.revengeTimer = 150;
+         }
+         else if (this.revengeTimer < 150)
+diff --git a/minecraft/net/minecraft/src/EntityMooshroom.java b/minecraft/net/minecraft/src/EntityMooshroom.java
+index d4813c5..ef0c147 100644
+--- a/minecraft/net/minecraft/src/EntityMooshroom.java
++++ b/minecraft/net/minecraft/src/EntityMooshroom.java
+@@ -91,12 +91,4 @@ public class EntityMooshroom extends FCEntityCow
+     {
+         return this.texture;
+     }
+-
+-    /**
+-     * This function is used when two same-species animals in 'love mode' breed to generate the new baby animal.
+-     */
+-    public EntityCow spawnBabyAnimal(EntityAgeable par1EntityAgeable)
+-    {
+-        return this.spawnBabyAnimal(par1EntityAgeable);
+-    }
+ }
+diff --git a/minecraft/net/minecraft/src/FCEntityChicken.java b/minecraft/net/minecraft/src/FCEntityChicken.java
+index 3a0357f..bbe3a44 100644
+--- a/minecraft/net/minecraft/src/FCEntityChicken.java
++++ b/minecraft/net/minecraft/src/FCEntityChicken.java
+@@ -269,12 +269,4 @@ public class FCEntityChicken extends EntityChicken
+         int var1 = this.GetHungerLevel();
+         return var1 == 1 ? "/btwmodtex/fcChickenFamished.png" : (var1 == 2 ? "/btwmodtex/fcChickenStarving.png" : super.getTexture());
+     }
+-
+-    /**
+-     * This function is used when two same-species animals in 'love mode' breed to generate the new baby animal.
+-     */
+-    public EntityChicken spawnBabyAnimal(EntityAgeable var1)
+-    {
+-        return this.spawnBabyAnimal(var1);
+-    }
+ }
+diff --git a/minecraft/net/minecraft/src/FCEntityCow.java b/minecraft/net/minecraft/src/FCEntityCow.java
+index 71f9940..93fb0b2 100644
+--- a/minecraft/net/minecraft/src/FCEntityCow.java
++++ b/minecraft/net/minecraft/src/FCEntityCow.java
+@@ -565,12 +565,4 @@ public class FCEntityCow extends EntityCow
+             return var1 == 1 ? "/btwmodtex/fcCowFamished.png" : (var1 == 2 ? "/btwmodtex/fcCowStarving.png" : super.getTexture());
+         }
+     }
+-
+-    /**
+-     * This function is used when two same-species animals in 'love mode' breed to generate the new baby animal.
+-     */
+-    public EntityCow spawnBabyAnimal(EntityAgeable var1)
+-    {
+-        return this.spawnBabyAnimal(var1);
+-    }
+ }
+diff --git a/minecraft/net/minecraft/src/FCEntityGhast.java b/minecraft/net/minecraft/src/FCEntityGhast.java
+index be0a905..805b196 100644
+--- a/minecraft/net/minecraft/src/FCEntityGhast.java
++++ b/minecraft/net/minecraft/src/FCEntityGhast.java
+@@ -68,7 +68,7 @@ public class FCEntityGhast extends EntityGhast
+                 long var10 = var15.m_lTimeOfLastDimensionSwitch;
+                 long var12 = this.worldObj.getWorldTime();
+ 
+-                if (var12 > var10 && var12 - var10 <= 600L && var15 != this.waypointZ)
++                if (var12 > var10 && var12 - var10 <= 600L)
+                 {
+                     this.m_entityTargeted = null;
+                 }
+diff --git a/minecraft/net/minecraft/src/FCEntityOcelot.java b/minecraft/net/minecraft/src/FCEntityOcelot.java
+index a95a08c..4251318 100644
+--- a/minecraft/net/minecraft/src/FCEntityOcelot.java
++++ b/minecraft/net/minecraft/src/FCEntityOcelot.java
+@@ -131,12 +131,4 @@ public class FCEntityOcelot extends EntityOcelot
+     {
+         return this.getTameSkin() == 22 ? "/btwmodtex/cat_tabby.png" : super.getTexture();
+     }
+-
+-    /**
+-     * This function is used when two same-species animals in 'love mode' breed to generate the new baby animal.
+-     */
+-    public EntityOcelot spawnBabyAnimal(EntityAgeable var1)
+-    {
+-        return this.spawnBabyAnimal(var1);
+-    }
+ }
+diff --git a/minecraft/net/minecraft/src/FCEntityPig.java b/minecraft/net/minecraft/src/FCEntityPig.java
+index aee8bdd..211e2a6 100644
+--- a/minecraft/net/minecraft/src/FCEntityPig.java
++++ b/minecraft/net/minecraft/src/FCEntityPig.java
+@@ -221,12 +221,4 @@ public class FCEntityPig extends EntityPig
+             return var1 == 1 ? "/btwmodtex/fcPigFamished.png" : (var1 == 2 ? "/btwmodtex/fcPigStarving.png" : super.getTexture());
+         }
+     }
+-
+-    /**
+-     * This function is used when two same-species animals in 'love mode' breed to generate the new baby animal.
+-     */
+-    public EntityPig spawnBabyAnimal(EntityAgeable var1)
+-    {
+-        return this.spawnBabyAnimal(var1);
+-    }
+ }
+diff --git a/minecraft/net/minecraft/src/FCEntityVillager.java b/minecraft/net/minecraft/src/FCEntityVillager.java
+index 59a416a..69edcdd 100644
+--- a/minecraft/net/minecraft/src/FCEntityVillager.java
++++ b/minecraft/net/minecraft/src/FCEntityVillager.java
+@@ -162,11 +162,11 @@ public class FCEntityVillager extends EntityVillager
+ 
+     public void setRevengeTarget(EntityLiving var1)
+     {
+-        this.randomTickDivider = var1;
++        this.entityLivingToAttack = var1;
+ 
+         if (var1 != null)
+         {
+-            this.isMating = 100;
++            this.revengeTimer = 100;
+ 
+             if (this.villageObj != null)
+             {
+@@ -180,7 +180,7 @@ public class FCEntityVillager extends EntityVillager
+         }
+         else
+         {
+-            this.isMating = 0;
++            this.revengeTimer = 0;
+         }
+     }
+ 
+@@ -1396,9 +1396,4 @@ public class FCEntityVillager extends EntityVillager
+             this.worldObj.playSound(this.posX, this.posY, this.posZ, "random.pop", 0.25F, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+         }
+     }
+-
+-    public EntityVillager func_90012_b(EntityAgeable var1)
+-    {
+-        return this.func_90012_b(var1);
+-    }
+ }
+diff --git a/minecraft/net/minecraft/src/FCEntityWolf.java b/minecraft/net/minecraft/src/FCEntityWolf.java
+index df1512b..7e1bfdc 100644
+--- a/minecraft/net/minecraft/src/FCEntityWolf.java
++++ b/minecraft/net/minecraft/src/FCEntityWolf.java
+@@ -827,12 +827,4 @@ public class FCEntityWolf extends EntityWolf
+     {
+         return this.IsWildAndHostile() ? 1.5393804F : (this.isTamed() ? (0.55F - (float)(20 - this.dataWatcher.getWatchableObjectInt(18)) * 0.02F) * (float)Math.PI : ((float)Math.PI / 5F));
+     }
+-
+-    /**
+-     * This function is used when two same-species animals in 'love mode' breed to generate the new baby animal.
+-     */
+-    public EntityWolf spawnBabyAnimal(EntityAgeable var1)
+-    {
+-        return this.spawnBabyAnimal(var1);
+-    }
+ }
+diff --git a/minecraft/net/minecraft/src/FCModelBlock.java b/minecraft/net/minecraft/src/FCModelBlock.java
+index c48e950..1f626b1 100644
+--- a/minecraft/net/minecraft/src/FCModelBlock.java
++++ b/minecraft/net/minecraft/src/FCModelBlock.java
+@@ -218,9 +218,4 @@ public class FCModelBlock extends FCUtilsPrimitiveGeometric
+ 
+         this.m_iActivePrimitiveID = -1;
+     }
+-
+-    public FCUtilsPrimitiveGeometric MakeTemporaryCopy()
+-    {
+-        return this.MakeTemporaryCopy();
+-    }
+ }
+diff --git a/minecraft/net/minecraft/src/FCUtilsPrimitiveAABBWithBenefits.java b/minecraft/net/minecraft/src/FCUtilsPrimitiveAABBWithBenefits.java
+index 22c3632..afceca8 100644
+--- a/minecraft/net/minecraft/src/FCUtilsPrimitiveAABBWithBenefits.java
++++ b/minecraft/net/minecraft/src/FCUtilsPrimitiveAABBWithBenefits.java
+@@ -37,14 +37,4 @@ public class FCUtilsPrimitiveAABBWithBenefits extends AxisAlignedBB
+     {
+         return !this.m_bForceRenderWithColorMultiplier ? super.RenderAsBlock(var1, var2, var3, var4, var5) : this.RenderAsBlockWithColorMultiplier(var1, var2, var3, var4, var5);
+     }
+-
+-    public AxisAlignedBB MakeTemporaryCopy()
+-    {
+-        return this.MakeTemporaryCopy();
+-    }
+-
+-    public FCUtilsPrimitiveGeometric MakeTemporaryCopy()
+-    {
+-        return this.MakeTemporaryCopy();
+-    }
+ }
+diff --git a/minecraft/net/minecraft/src/FCUtilsPrimitiveQuad.java b/minecraft/net/minecraft/src/FCUtilsPrimitiveQuad.java
+index 0e94319..8fac427 100644
+--- a/minecraft/net/minecraft/src/FCUtilsPrimitiveQuad.java
++++ b/minecraft/net/minecraft/src/FCUtilsPrimitiveQuad.java
+@@ -196,9 +196,4 @@ public class FCUtilsPrimitiveQuad extends FCUtilsPrimitiveGeometric
+     {
+         this.RenderAsBlock(var1, var2, var3, var4, var5);
+     }
+-
+-    public FCUtilsPrimitiveGeometric MakeTemporaryCopy()
+-    {
+-        return this.MakeTemporaryCopy();
+-    }
+ }
+diff --git a/minecraft/net/minecraft/src/RenderGlobal.java b/minecraft/net/minecraft/src/RenderGlobal.java
+index 17b108a..1edf13d 100644
+--- a/minecraft/net/minecraft/src/RenderGlobal.java
++++ b/minecraft/net/minecraft/src/RenderGlobal.java
+@@ -1825,7 +1825,7 @@ public class RenderGlobal implements IWorldAccess
+             double var15 = this.mc.renderViewEntity.posX - par2;
+             double var17 = this.mc.renderViewEntity.posY - par4;
+             double var19 = this.mc.renderViewEntity.posZ - par6;
+-            Object var21 = null;
++            EntityFX var21 = null;
+             double var22;
+ 
+             if (par1Str.equals("hugeexplosion"))
+diff --git a/minecraft_server/net/minecraft/src/AxisAlignedBB.java b/minecraft_server/net/minecraft/src/AxisAlignedBB.java
+index 56c837f..77dd9db 100644
+--- a/minecraft_server/net/minecraft/src/AxisAlignedBB.java
++++ b/minecraft_server/net/minecraft/src/AxisAlignedBB.java
+@@ -559,9 +559,4 @@ public class AxisAlignedBB extends FCUtilsPrimitiveGeometric
+             var2.add(this);
+         }
+     }
+-
+-    public FCUtilsPrimitiveGeometric MakeTemporaryCopy()
+-    {
+-        return this.MakeTemporaryCopy();
+-    }
+ }
+diff --git a/minecraft_server/net/minecraft/src/EntityAnimal.java b/minecraft_server/net/minecraft/src/EntityAnimal.java
+index d45b790..07bffe1 100644
+--- a/minecraft_server/net/minecraft/src/EntityAnimal.java
++++ b/minecraft_server/net/minecraft/src/EntityAnimal.java
+@@ -451,9 +451,9 @@ public abstract class EntityAnimal extends EntityAgeable implements IAnimals
+ 
+     public void setRevengeTarget(EntityLiving var1)
+     {
+-        this.breeding = var1;
++        this.entityLivingToAttack = var1;
+ 
+-        if (this.breeding != null)
++        if (this.entityLivingToAttack != null)
+         {
+             this.revengeTimer = 300;
+         }
+@@ -609,9 +609,9 @@ public abstract class EntityAnimal extends EntityAgeable implements IAnimals
+ 
+     public void OnNearbyAnimalAttacked(EntityAnimal var1, EntityLiving var2)
+     {
+-        if (this.breeding == null)
++        if (this.entityLivingToAttack == null)
+         {
+-            this.breeding = var2;
++            this.entityLivingToAttack = var2;
+             this.revengeTimer = 150;
+         }
+         else if (this.revengeTimer < 150)
+@@ -632,9 +632,9 @@ public abstract class EntityAnimal extends EntityAgeable implements IAnimals
+ 
+     protected void OnNearbyPlayerStartles(EntityPlayer var1)
+     {
+-        if (this.breeding == null)
++        if (this.entityLivingToAttack == null)
+         {
+-            this.breeding = var1;
++            this.entityLivingToAttack = var1;
+             this.revengeTimer = 150;
+         }
+         else if (this.revengeTimer < 150)
+diff --git a/minecraft_server/net/minecraft/src/EntityMooshroom.java b/minecraft_server/net/minecraft/src/EntityMooshroom.java
+index 85edc72..138240a 100644
+--- a/minecraft_server/net/minecraft/src/EntityMooshroom.java
++++ b/minecraft_server/net/minecraft/src/EntityMooshroom.java
+@@ -83,12 +83,4 @@ public class EntityMooshroom extends FCEntityCow
+             FCBlockMycelium.CheckForMyceliumSpreadToRandomBlockAround(this.worldObj, MathHelper.floor_double(this.posX), (int)this.posY - 1, MathHelper.floor_double(this.posZ));
+         }
+     }
+-
+-    /**
+-     * This function is used when two same-species animals in 'love mode' breed to generate the new baby animal.
+-     */
+-    public EntityCow spawnBabyAnimal(EntityAgeable par1EntityAgeable)
+-    {
+-        return this.spawnBabyAnimal(par1EntityAgeable);
+-    }
+ }
+diff --git a/minecraft_server/net/minecraft/src/FCEntityChicken.java b/minecraft_server/net/minecraft/src/FCEntityChicken.java
+index ef60d8b..1206767 100644
+--- a/minecraft_server/net/minecraft/src/FCEntityChicken.java
++++ b/minecraft_server/net/minecraft/src/FCEntityChicken.java
+@@ -259,12 +259,4 @@ public class FCEntityChicken extends EntityChicken
+     {
+         return 14.35F;
+     }
+-
+-    /**
+-     * This function is used when two same-species animals in 'love mode' breed to generate the new baby animal.
+-     */
+-    public EntityChicken spawnBabyAnimal(EntityAgeable var1)
+-    {
+-        return this.spawnBabyAnimal(var1);
+-    }
+ }
+diff --git a/minecraft_server/net/minecraft/src/FCEntityCow.java b/minecraft_server/net/minecraft/src/FCEntityCow.java
+index b6fec2d..a2d0d3e 100644
+--- a/minecraft_server/net/minecraft/src/FCEntityCow.java
++++ b/minecraft_server/net/minecraft/src/FCEntityCow.java
+@@ -548,12 +548,4 @@ public class FCEntityCow extends EntityCow
+             var8.attackEntityFrom(DamageSource.generic, 20);
+         }
+     }
+-
+-    /**
+-     * This function is used when two same-species animals in 'love mode' breed to generate the new baby animal.
+-     */
+-    public EntityCow spawnBabyAnimal(EntityAgeable var1)
+-    {
+-        return this.spawnBabyAnimal(var1);
+-    }
+ }
+diff --git a/minecraft_server/net/minecraft/src/FCEntityGhast.java b/minecraft_server/net/minecraft/src/FCEntityGhast.java
+index d46f552..55bb81d 100644
+--- a/minecraft_server/net/minecraft/src/FCEntityGhast.java
++++ b/minecraft_server/net/minecraft/src/FCEntityGhast.java
+@@ -68,7 +68,7 @@ public class FCEntityGhast extends EntityGhast
+                 long var10 = var15.m_lTimeOfLastDimensionSwitch;
+                 long var12 = this.worldObj.getWorldTime();
+ 
+-                if (var12 > var10 && var12 - var10 <= 600L && var15 != this.waypointZ)
++                if (var12 > var10 && var12 - var10 <= 600L)
+                 {
+                     this.m_entityTargeted = null;
+                 }
+diff --git a/minecraft_server/net/minecraft/src/FCEntityOcelot.java b/minecraft_server/net/minecraft/src/FCEntityOcelot.java
+index 8983da0..70978c4 100644
+--- a/minecraft_server/net/minecraft/src/FCEntityOcelot.java
++++ b/minecraft_server/net/minecraft/src/FCEntityOcelot.java
+@@ -123,12 +123,4 @@ public class FCEntityOcelot extends EntityOcelot
+     {
+         return this.MeleeAttack(var1);
+     }
+-
+-    /**
+-     * This function is used when two same-species animals in 'love mode' breed to generate the new baby animal.
+-     */
+-    public EntityOcelot spawnBabyAnimal(EntityAgeable var1)
+-    {
+-        return this.spawnBabyAnimal(var1);
+-    }
+ }
+diff --git a/minecraft_server/net/minecraft/src/FCEntityPig.java b/minecraft_server/net/minecraft/src/FCEntityPig.java
+index 96ff5cc..9201b74 100644
+--- a/minecraft_server/net/minecraft/src/FCEntityPig.java
++++ b/minecraft_server/net/minecraft/src/FCEntityPig.java
+@@ -204,12 +204,4 @@ public class FCEntityPig extends EntityPig
+     {
+         return 50.225002F;
+     }
+-
+-    /**
+-     * This function is used when two same-species animals in 'love mode' breed to generate the new baby animal.
+-     */
+-    public EntityPig spawnBabyAnimal(EntityAgeable var1)
+-    {
+-        return this.spawnBabyAnimal(var1);
+-    }
+ }
+diff --git a/minecraft_server/net/minecraft/src/FCEntityVillager.java b/minecraft_server/net/minecraft/src/FCEntityVillager.java
+index 4a94cef..9110dd6 100644
+--- a/minecraft_server/net/minecraft/src/FCEntityVillager.java
++++ b/minecraft_server/net/minecraft/src/FCEntityVillager.java
+@@ -162,11 +162,11 @@ public class FCEntityVillager extends EntityVillager
+ 
+     public void setRevengeTarget(EntityLiving var1)
+     {
+-        this.randomTickDivider = var1;
++        this.entityLivingToAttack = var1;
+ 
+         if (var1 != null)
+         {
+-            this.isMating = 100;
++            this.revengeTimer = 100;
+ 
+             if (this.villageObj != null)
+             {
+@@ -180,7 +180,7 @@ public class FCEntityVillager extends EntityVillager
+         }
+         else
+         {
+-            this.isMating = 0;
++            this.revengeTimer = 0;
+         }
+     }
+ 
+@@ -1342,9 +1342,4 @@ public class FCEntityVillager extends EntityVillager
+     {
+         this.m_iUpdateTradesCountdown = 1;
+     }
+-
+-    public EntityVillager func_90012_b(EntityAgeable var1)
+-    {
+-        return this.func_90012_b(var1);
+-    }
+ }
+diff --git a/minecraft_server/net/minecraft/src/FCEntityWolf.java b/minecraft_server/net/minecraft/src/FCEntityWolf.java
+index 160a27c..3c61763 100644
+--- a/minecraft_server/net/minecraft/src/FCEntityWolf.java
++++ b/minecraft_server/net/minecraft/src/FCEntityWolf.java
+@@ -798,12 +798,4 @@ public class FCEntityWolf extends EntityWolf
+             }
+         }
+     }
+-
+-    /**
+-     * This function is used when two same-species animals in 'love mode' breed to generate the new baby animal.
+-     */
+-    public EntityWolf spawnBabyAnimal(EntityAgeable var1)
+-    {
+-        return this.spawnBabyAnimal(var1);
+-    }
+ }
+diff --git a/minecraft_server/net/minecraft/src/FCModelBlock.java b/minecraft_server/net/minecraft/src/FCModelBlock.java
+index 498a0f5..5b756ec 100644
+--- a/minecraft_server/net/minecraft/src/FCModelBlock.java
++++ b/minecraft_server/net/minecraft/src/FCModelBlock.java
+@@ -130,9 +130,4 @@ public class FCModelBlock extends FCUtilsPrimitiveGeometric
+     {
+         this.m_iAssemblyID = var1;
+     }
+-
+-    public FCUtilsPrimitiveGeometric MakeTemporaryCopy()
+-    {
+-        return this.MakeTemporaryCopy();
+-    }
+ }
+diff --git a/minecraft_server/net/minecraft/src/FCUtilsPrimitiveAABBWithBenefits.java b/minecraft_server/net/minecraft/src/FCUtilsPrimitiveAABBWithBenefits.java
+index f1f83c5..487117a 100644
+--- a/minecraft_server/net/minecraft/src/FCUtilsPrimitiveAABBWithBenefits.java
++++ b/minecraft_server/net/minecraft/src/FCUtilsPrimitiveAABBWithBenefits.java
+@@ -32,14 +32,4 @@ public class FCUtilsPrimitiveAABBWithBenefits extends AxisAlignedBB
+     {
+         this.m_bForceRenderWithColorMultiplier = var1;
+     }
+-
+-    public AxisAlignedBB MakeTemporaryCopy()
+-    {
+-        return this.MakeTemporaryCopy();
+-    }
+-
+-    public FCUtilsPrimitiveGeometric MakeTemporaryCopy()
+-    {
+-        return this.MakeTemporaryCopy();
+-    }
+ }
+diff --git a/minecraft_server/net/minecraft/src/FCUtilsPrimitiveQuad.java b/minecraft_server/net/minecraft/src/FCUtilsPrimitiveQuad.java
+index 50b38be..c80f1fd 100644
+--- a/minecraft_server/net/minecraft/src/FCUtilsPrimitiveQuad.java
++++ b/minecraft_server/net/minecraft/src/FCUtilsPrimitiveQuad.java
+@@ -119,9 +119,4 @@ public class FCUtilsPrimitiveQuad extends FCUtilsPrimitiveGeometric
+         this.m_iIconIndex = var1;
+         return this;
+     }
+-
+-    public FCUtilsPrimitiveGeometric MakeTemporaryCopy()
+-    {
+-        return this.MakeTemporaryCopy();
+-    }
+ }
