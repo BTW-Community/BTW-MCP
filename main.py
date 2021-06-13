@@ -2,8 +2,7 @@ import os
 import shutil
 import subprocess
 import distutils.dir_util
-
-# https://www.mediafire.com/file/mtotnoxadbuljz4/BTWMod4-B0000003.zip/file
+import zipfile
 
 def download():
     links = [
@@ -62,10 +61,20 @@ def btw_jars():
     os.chdir("client")
     shutil.copyfile("../../bin/minecraft.jar", "minecraftjar.zip")
     shutil.unpack_archive("minecraftjar.zip")
+    
+    # files can't be named aux.class in Windows
+    with zipfile.ZipFile("minecraftjar.zip") as minecraftjar:
+        with open("../auxclass.txt", "wb") as auxclass:
+            auxclass.write(minecraftjar.read("aux.class"))
+    
     os.remove("minecraftjar.zip")
     distutils.dir_util.copy_tree("../MINECRAFT-JAR", ".")
     os.chdir("..")
     shutil.make_archive("minecraftjar", "zip", "client")
+    
+    with zipfile.ZipFile("minecraftjar.zip", "a") as minecraftjar:
+        minecraftjar.write("auxclass.txt", "aux.class")
+    
     os.rename("minecraftjar.zip", "minecraft.jar")
     
     os.mkdir("server")
@@ -119,7 +128,7 @@ def recompile():
 
 
 
-download()
+#download()
 vanilla_jars()
 btw_jars()
 decompile()
