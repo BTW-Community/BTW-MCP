@@ -130,18 +130,8 @@ def clone_ce():
     distutils.dir_util.copy_tree("src/resources", "bin/minecraft")
     os.chdir("..")
 
+
 def recompile():
     os.chdir("mcp")
     subprocess.run(["runtime/bin/python/python_mcp", "runtime/recompile.py"])
     os.chdir("..")
-
-
-
-#download()
-vanilla_jars()
-btw_jars()
-decompile()
-setup_new_git_repo()
-patch()
-#clone_ce()
-recompile()
