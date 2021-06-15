@@ -95,6 +95,19 @@ def btw_jars():
     shutil.rmtree("temp")
     os.chdir("../..")
     
+# get splashes file from BTW
+def btw_splashes():
+    os.chdir("mcp")
+    with zipfile.ZipFile("../files/BTWMod4-B0000003.zip", "r") as btw:
+        if "title" not in os.listdir("src/resources"):
+            os.mkdir("src/resources/title")
+        with open("src/resources/title/splashes.txt", "wb") as lang:
+            lang.write(btw.read("MINECRAFT-JAR/title/splashes.txt"))
+    os.chdir("src")
+    subprocess.run(["git", "add", "resources"])
+    subprocess.run(["git", "commit", "-m\"btw splashes\""])
+    os.chdir("../..")
+
 
 def setup_new_git_repo():
     os.chdir("mcp/src")
@@ -104,7 +117,6 @@ def setup_new_git_repo():
     os.mkdir("resources")
     subprocess.run(["git", "add", "resources"])
     subprocess.run(["git", "commit", "-m\"initial decompile\""])
-    subprocess.run(["git", "branch",  "decompile"])
     os.chdir("../..")
 
 
@@ -127,11 +139,20 @@ def clone_ce():
     shutil.rmtree("src")
     subprocess.run(["git", "clone", "https://github.com/BTW-Community/BTW-source.git"])
     os.rename("BTW-source", "src")
-    distutils.dir_util.copy_tree("src/resources", "bin/minecraft")
     os.chdir("..")
 
 
 def recompile():
     os.chdir("mcp")
+    if "bin" in os.listdir():
+        shutil.rmtree("bin")
+    
     subprocess.run(["runtime/bin/python/python_mcp", "runtime/recompile.py"])
+    
+    if "resources" in os.listdir("src"):
+        distutils.dir_util.copy_tree("src/resources", "bin/minecraft")
+        if "bin" in os.listdir("src/resources"):
+            distutils.dir_util.copy_tree("src/resources/lang", "bin/minecraft_server")
+    
     os.chdir("..")
+    
