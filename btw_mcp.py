@@ -3,6 +3,8 @@ import shutil
 import subprocess
 import distutils.dir_util
 import zipfile
+import hashlib
+import json
 
 def download():
     links = [
@@ -154,5 +156,23 @@ def recompile():
         if "bin" in os.listdir("src/resources"):
             distutils.dir_util.copy_tree("src/resources/lang", "bin/minecraft_server")
     
+    os.chdir("..")
+    
+    
+def updatemd5():
+    os.chdir("mcp")
+    subprocess.run(["runtime/bin/python/python_mcp", "runtime/updatemd5.py", "--force"])
+    os.chdir("src/resources")
+    
+    output = dict()
+    for path, _, files in os.walk("."):
+        for file_name in files:
+            with open(path + "/" + file_name, "rb") as file:
+                output[path + "/" + file_name] = hashlib.md5(file.read()).hexdigest()
+    
+    os.chdir("../..")
+    with open("resource_md5.json", "w") as file:
+        file.write(json.dumps(output))
+                    
     os.chdir("..")
     
