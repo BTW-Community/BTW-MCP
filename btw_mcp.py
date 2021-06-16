@@ -5,6 +5,7 @@ import distutils.dir_util
 import zipfile
 import hashlib
 import json
+import util
 
 def download():
     links = [
@@ -157,8 +158,8 @@ def recompile():
             distutils.dir_util.copy_tree("src/resources/lang", "bin/minecraft_server")
     
     os.chdir("..")
-    
-    
+
+
 def updatemd5():
     os.chdir("mcp")
     subprocess.run(["runtime/bin/python/python_mcp", "runtime/updatemd5.py", "--force"])
@@ -174,5 +175,61 @@ def updatemd5():
     with open("resource_md5.json", "w") as file:
         file.write(json.dumps(output))
                     
+    os.chdir("..")
+
+
+def package_release(base, release):
+    os.chdir("mcp/src")
+    subprocess.run(["git", "checkout", base])
+    os.chdir("..")
+    subprocess.run(["runtime/bin/python/python_mcp", "runtime/recompile.py"])
+    subprocess.run(["runtime/bin/python/python_mcp", "runtime/updatemd5.py", "--force"])
+    os.chdir("src")
+    subprocess.run(["git", "checkout", release])
+    
+    resource_paths = subprocess.run(["git", "diff", base + ":resources", release + ":resources", "--name-only"], capture_output=True, text=True).stdout.split("\n")
+    modified_paths = subprocess.run(["git", "diff", base, release, "--name-only", "--diff-filter=M"], capture_output=True, text=True).stdout.split("\n")
+    added_paths = subprocess.run(["git", "diff", base, release, "--name-only", "--diff-filter=A"], capture_output=True, text=True).stdout.split("\n")
+    paths = modified_paths + added_paths
+    
+    modified_source_paths = [path for path in modified_paths if path.split("/")[0] == "minecraft" or path.split("/")[0] == "minecraft_server"]
+    
+    paths_to_patch = [path for path in modified_source_paths if "FC" not in path.split("/")[-1]]
+    with open("src.patch", "w") as patch_file:
+        patch_file.write(subprocess.run(["git", "diff", base, release] + paths_to_patch, capture_output=True, text=True).stdout)
+    
+    
+    source_paths_to_copy = [path for path in modified_source_paths if "FC" in path] + [path for path in added_paths if path.split("/")[0] == "minecraft" or path.split("/")[0] == "minecraft_server"]
+    
+    os.chdir("..")
+    subprocess.run(["runtime/bin/python/python_mcp", "runtime/recompile.py"])
+    subprocess.run(["runtime/bin/python/python_mcp", "runtime/reobfuscate.py"])
+    
+    
+    os.chdir("..")
+    os.mkdir("release")
+    os.chdir("release")
+    os.mkdir("client")
+    distutils.dir_util.copy_tree("../mcp/reobf/minecraft", "client")
+    os.mkdir("server")
+    distutils.dir_util.copy_tree("../mcp/reobf/minecraft_server", "server")
+    os.mkdir("src")
+    os.mkdir("src/resources")
+    
+    os.chdir("../mcp/src/resources")
+    util.copy_list(resource_paths[0:-1], "../../../release/src/resources")
+    distutils.dir_util.copy_tree("../../../release/src/resources", "../../../release/client")
+    if "lang" in os.listdir("../../../release/client"):
+        distutils.dir_util.copy_tree("../../../release/client/lang", "../../../release/server/lang")
+    
+    os.chdir("..")
+    util.copy_list(source_paths_to_copy, "../../release/src")
+    shutil.copyfile("src.patch", "../../release/src/src.patch")
+    
+    os.chdir("../../release")
+    shutil.make_archive("client", "zip", "client")
+    shutil.make_archive("server", "zip", "server")
+    shutil.rmtree("client")
+    shutil.rmtree("server")
     os.chdir("..")
     
