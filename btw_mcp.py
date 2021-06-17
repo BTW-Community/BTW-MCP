@@ -120,6 +120,7 @@ def setup_new_git_repo():
     os.mkdir("resources")
     subprocess.run(["git", "add", "resources"])
     subprocess.run(["git", "commit", "-m\"initial decompile\""])
+    subprocess.run(["git", "tag",  "decompile"])
     os.chdir("../..")
 
 
@@ -128,6 +129,7 @@ def patch():
     subprocess.run(["git", "apply", "../../files/btw_decomp_fixes.patch"])
     subprocess.run(["git", "add", "."])
     subprocess.run(["git", "commit", "-m\"fix btw decompile errors\""])
+    subprocess.run(["git", "tag", "decomp_fix"])
     os.chdir("../..")
 
 
@@ -178,7 +180,7 @@ def updatemd5():
     os.chdir("..")
 
 
-def package_release(base, release):
+def package_release(base, release, directory="release"):
     os.chdir("mcp/src")
     subprocess.run(["git", "checkout", base])
     os.chdir("..")
@@ -207,8 +209,8 @@ def package_release(base, release):
     
     
     os.chdir("..")
-    os.mkdir("release")
-    os.chdir("release")
+    os.mkdir(directory)
+    os.chdir(directory)
     os.mkdir("client")
     distutils.dir_util.copy_tree("../mcp/reobf/minecraft", "client")
     os.mkdir("server")
@@ -217,19 +219,30 @@ def package_release(base, release):
     os.mkdir("src/resources")
     
     os.chdir("../mcp/src/resources")
-    util.copy_list(resource_paths[0:-1], "../../../release/src/resources")
-    distutils.dir_util.copy_tree("../../../release/src/resources", "../../../release/client")
-    if "lang" in os.listdir("../../../release/client"):
-        distutils.dir_util.copy_tree("../../../release/client/lang", "../../../release/server/lang")
+    util.copy_list(resource_paths[0:-1], "../../../" + directory + "/src/resources")
+    distutils.dir_util.copy_tree("../../../" + directory + "/src/resources", "../../../" + directory + "/client")
+    if "lang" in os.listdir("../../../" + directory + "/client"):
+        distutils.dir_util.copy_tree("../../../" + directory + "/client/lang", "../../../" + directory + "/server/lang")
     
     os.chdir("..")
-    util.copy_list(source_paths_to_copy, "../../release/src")
-    shutil.copyfile("src.patch", "../../release/src/src.patch")
+    util.copy_list(source_paths_to_copy, "../../" + directory + "/src")
+    shutil.copyfile("src.patch", "../../" + directory + "/src/src.patch")
     
-    os.chdir("../../release")
+    os.chdir("../../" + directory)
     shutil.make_archive("client", "zip", "client")
     shutil.make_archive("server", "zip", "server")
     shutil.rmtree("client")
     shutil.rmtree("server")
     os.chdir("..")
     
+
+def import_release(tag_name = None):
+    os.chdir("mcp/src")
+    distutils.dir_util.copy_tree("../../release/src", ".")
+    subprocess.run(["git", "apply", "src.patch"])
+    os.remove("src.patch")
+    subprocess.run(["git", "add", "."])
+    subprocess.run(["git", "commit", "-m\"imported release\""])
+    if tag_name != None:
+        subprocess.run(["git", "tag", tag_name])
+    os.chdir("../..")
