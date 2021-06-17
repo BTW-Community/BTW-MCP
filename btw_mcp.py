@@ -162,24 +162,6 @@ def recompile():
     os.chdir("..")
 
 
-def updatemd5():
-    os.chdir("mcp")
-    subprocess.run(["runtime/bin/python/python_mcp", "runtime/updatemd5.py", "--force"])
-    os.chdir("src/resources")
-    
-    output = dict()
-    for path, _, files in os.walk("."):
-        for file_name in files:
-            with open(path + "/" + file_name, "rb") as file:
-                output[path + "/" + file_name] = hashlib.md5(file.read()).hexdigest()
-    
-    os.chdir("../..")
-    with open("resource_md5.json", "w") as file:
-        file.write(json.dumps(output))
-                    
-    os.chdir("..")
-
-
 def package_release(base, release, directory="release"):
     os.chdir("mcp/src")
     subprocess.run(["git", "checkout", base])
