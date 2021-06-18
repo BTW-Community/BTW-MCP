@@ -155,6 +155,7 @@ def recompile():
     subprocess.run(["runtime/bin/python/python_mcp", "runtime/recompile.py"])
     
     if "resources" in os.listdir("src"):
+        distutils.dir_util._path_created = {}       # https://stackoverflow.com/a/28055993
         distutils.dir_util.copy_tree("src/resources", "bin/minecraft")
         if "bin" in os.listdir("src/resources"):
             distutils.dir_util.copy_tree("src/resources/lang", "bin/minecraft_server")
@@ -166,7 +167,11 @@ def package_release(base, release, directory="release"):
     os.chdir("mcp/src")
     subprocess.run(["git", "checkout", base])
     os.chdir("..")
-    subprocess.run(["runtime/bin/python/python_mcp", "runtime/recompile.py"])
+    
+    os.chdir("..")
+    recompile()
+    os.chdir("mcp")
+    
     subprocess.run(["runtime/bin/python/python_mcp", "runtime/updatemd5.py", "--force"])
     os.chdir("src")
     subprocess.run(["git", "checkout", release])
@@ -186,7 +191,9 @@ def package_release(base, release, directory="release"):
     source_paths_to_copy = [path for path in modified_source_paths if "FC" in path] + [path for path in added_paths if path.split("/")[0] == "minecraft" or path.split("/")[0] == "minecraft_server"]
     
     os.chdir("..")
-    subprocess.run(["runtime/bin/python/python_mcp", "runtime/recompile.py"])
+    os.chdir("..")
+    recompile()
+    os.chdir("mcp")
     subprocess.run(["runtime/bin/python/python_mcp", "runtime/reobfuscate.py"])
     
     
