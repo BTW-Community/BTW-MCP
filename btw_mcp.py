@@ -139,11 +139,12 @@ def decompile():
     os.chdir("..")
 
 
-def clone_ce():
+# clone a git repository at a URL and set it as the src folder
+def clone_src(url):
     os.chdir("mcp")
     shutil.rmtree("src")
-    subprocess.run(["git", "clone", "https://github.com/BTW-Community/BTW-source.git"])
-    os.rename("BTW-source", "src")
+    subprocess.run(["git", "clone", url])
+    os.rename(url.split("/")[-1].split(".")[0], "src")
     os.chdir("..")
 
 
