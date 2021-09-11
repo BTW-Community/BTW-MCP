@@ -10,3 +10,7 @@ def copy_list(paths, destination):
                 os.mkdir(p + dir + "/")
             p += dir + "/"
         shutil.copyfile(path, p + dirs[-1])
+
+
+def use_openjdk():
+    os.environ["PATH"] = os.getcwd() + "\\files\\jdk8u302-b08\\bin;" + os.environ["PATH"]

@@ -32,6 +32,16 @@ def vanilla_jars():
     shutil.copyfile("../files/mcp751.zip", "mcp751.zip")
     shutil.unpack_archive("mcp751.zip")
     os.remove("mcp751.zip")
+	
+    with open("runtime/commands.py", "r") as f:
+        lines = f.readlines()
+    
+    lines[705] = lines[705][0:-1] + "\"\"\"\n"
+    lines[723] = lines[723][0:-1] + "\"\"\"\n"
+    
+    with open("runtime/commands.py", "w") as f:
+        f.writelines(lines)
+	
     os.chdir("jars")
     shutil.copyfile("../../downloads/minecraft_server.jar", "minecraft_server.jar")
     shutil.copytree("../../files/resources", "resources")
@@ -50,7 +60,6 @@ def vanilla_jars():
     shutil.unpack_archive("lwjgl.zip")
     os.remove("lwjgl.zip")
     os.chdir("../../../..")
-
 
 # install btw into vanilla jars
 def btw_jars():
@@ -134,6 +143,7 @@ def patch():
 
 
 def decompile():
+    util.use_openjdk()
     os.chdir("mcp")
     subprocess.run(["runtime/bin/python/python_mcp", "runtime/decompile.py"])
     os.chdir("..")
@@ -149,6 +159,7 @@ def clone_src(url):
 
 
 def recompile():
+    util.use_openjdk()
     os.chdir("mcp")
     if "bin" in os.listdir():
         shutil.rmtree("bin")
