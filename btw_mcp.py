@@ -24,6 +24,11 @@ def download():
         subprocess.run(["curl", link[1], "--output", link[0] ])
     os.chdir("..")
 
+def extract_openjdk():
+    os.chdir("files")
+    shutil.unpack_archive("openjdk8.zip")
+    os.chdir("..")
+
 
 # setup mcp jars folder
 def vanilla_jars():
