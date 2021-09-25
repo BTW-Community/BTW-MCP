@@ -193,7 +193,7 @@ def package_release(base, release, directory="release"):
     os.chdir("src")
     subprocess.run(["git", "checkout", release])
     
-    resource_paths = subprocess.run(["git", "diff", base + ":resources", release + ":resources", "--name-only"], capture_output=True, text=True).stdout.split("\n")
+    resource_paths = subprocess.run(["git", "diff", base + ":resources", release + ":resources", "--name-only", "--diff-filter=MA"], capture_output=True, text=True).stdout.split("\n")
     modified_paths = subprocess.run(["git", "diff", base, release, "--name-only", "--diff-filter=M"], capture_output=True, text=True).stdout.split("\n")
     added_paths = subprocess.run(["git", "diff", base, release, "--name-only", "--diff-filter=A"], capture_output=True, text=True).stdout.split("\n")
     paths = modified_paths + added_paths
@@ -242,9 +242,9 @@ def package_release(base, release, directory="release"):
     os.chdir("..")
     
 
-def import_release(tag_name = None):
+def import_release(directory = "release/src", tag_name = None):
     os.chdir("mcp/src")
-    distutils.dir_util.copy_tree("../../release/src", ".")
+    distutils.dir_util.copy_tree("../../" + directory, ".")
     subprocess.run(["git", "apply", "src.patch"])
     os.remove("src.patch")
     subprocess.run(["git", "add", "."])
@@ -252,3 +252,7 @@ def import_release(tag_name = None):
     if tag_name != None:
         subprocess.run(["git", "tag", tag_name])
     os.chdir("../..")
+
+
+def clone_patch_repo(url="https://github.com/BTW-Community/BTW-Public.git"):
+    subprocess.run(["git", "clone", url])
